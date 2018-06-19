@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<div class="container-fluid">
+    <h1>数字识别DEMO</h1>
+</div>
+<!-- html代码，不考虑CSS样式 -->
+<img id="preview" alt=""/>
+<form class="am-form" method="post" enctype="multipart/form-data">
+    <input type="file" id="head" name="image" onchange="previewImage(this)">
+    <button type="submit" name="image" class="btn btn-primary am-btn am-btn-primary am-btn-xs">上传</button>
+</form>
+
+<script src="/static/vendor/index.js"></script>
+
+{% if result %}
+<h5>识别结果：{{ result }}</h5>
+
+{% endif%}
+
+{% endblock %}

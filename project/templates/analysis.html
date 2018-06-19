@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+{% block body %}
+<script src="/static/vendor//chartjs/Chart.min.js"></script>
+<script src="/static/vendor//chartjs/Chart.bundle.min.js"></script>
+<script src="/static/vendor//chartjs/utils.js"></script>
+
+<div class="container-fluid">
+    <h1>偏好分析</h1>
+    <br/>
+    <form class="form-inline" method="post">
+        <div class="form-group mx-sm-3 mb-2">
+            <label>请输入用户下标：</label>
+            <input type="text" class="form-control" name="user_index" placeholder="取值范围：[0,11000)">
+            &nbsp
+            <button type="submit" class="btn btn-primary">确认</button>
+        </div>
+    </form>
+</div>
+
+{% if user %}
+<br/><br/>
+<div class="container-fluid">
+    <h4>用户ID: {{ user }}</h4>
+    <br/><br/>
+    <div id="canvas-holder1" style="width:80%">
+        <canvas id="genre_pie"></canvas>
+    </div>
+    <br/>
+    <div id="canvas-holder2" style="width:80%">
+        <canvas id="artist_pie"></canvas>
+    </div>
+</div>
+<script>
+    var config_genre_pie = {
+        type: 'pie',
+        data: {
+            datasets: [{
+                data: [
+                    {{ genre_datas[0][1]|safe }},
+                    {{ genre_datas[1][1]|safe }},
+                    {{ genre_datas[2][1]|safe }},
+                    {{ genre_datas[3][1]|safe }},
+                    {{ genre_datas[4][1]|safe }},
+                ],
+                backgroundColor: [
+                    window.chartColors.red,
+                    window.chartColors.orange,
+                    window.chartColors.yellow,
+                    window.chartColors.green,
+                    window.chartColors.blue,
+                ],
+                label: 'Dataset 1'
+            }],
+            labels: [
+                '{{ genre_datas[0][0]|safe }}',
+                '{{ genre_datas[1][0]|safe }}',
+                '{{ genre_datas[2][0]|safe }}',
+                '{{ genre_datas[3][0]|safe }}',
+                '{{ genre_datas[4][0]|safe }}',
+            ]
+        },
+        options: {
+            title: {
+                display: true,
+                text: '曲风偏好分析'
+            },
+            responsive: true
+        }
+    };
+    var config_artist_pie = {
+        type: 'pie',
+        data: {
+            datasets: [{
+                data: [
+                    {{ artist_datas[0][1]|safe }},
+                {{ artist_datas[1][1]|safe }},
+    {{ artist_datas[2][1]|safe }},
+    {{ artist_datas[3][1]|safe }},
+    {{ artist_datas[4][1]|safe }},
+    ],
+    backgroundColor: [
+        window.chartColors.red,
+        window.chartColors.orange,
+        window.chartColors.yellow,
+        window.chartColors.green,
+        window.chartColors.blue,
+    ],
+        label: 'Dataset 1'
+    }],
+    labels: [
+        '{{ artist_datas[0][0]|safe }}',
+        '{{ artist_datas[1][0]|safe }}',
+        '{{ artist_datas[2][0]|safe }}',
+        '{{ artist_datas[3][0]|safe }}',
+        '{{ artist_datas[4][0]|safe }}',
+    ]
+    },
+    options: {
+        title: {
+            display: true,
+                text: '歌手偏好分析'
+        },
+        responsive: true
+    }
+    };
+    window.onload = function () {
+        var ctx = document.getElementById('genre_pie').getContext('2d');
+        window.myPie = new Chart(ctx, config_genre_pie);
+        ctx = document.getElementById('artist_pie').getContext('2d');
+        window.myPie = new Chart(ctx, config_artist_pie);
+    };
+</script>
+{% endif %}
+
+
+{% endblock %}
