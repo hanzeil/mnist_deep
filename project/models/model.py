@@ -15,7 +15,7 @@ def cnn_model():
     # pooling layer 1
     pool1 = tf.layers.max_pooling2d(convo1, 2, 2)
     # convolutional layer 2
-    convo2 = tf.layers.conv2d(input, 64, 3, activation=tf.nn.relu)
+    convo2 = tf.layers.conv2d(input, 64, 5, activation=tf.nn.relu)
     # pooling layer 2
     pool2 = tf.layers.max_pooling2d(convo2, 2, 2)
 
@@ -31,8 +31,8 @@ def cnn_model():
         inputs=dense1,
         rate=prob,
     )
-    # add final logistic regression layer
-    output = tf.layers.dense(
+    # add final logit layer
+    logits = tf.layers.dense(
         inputs=dropout,
         units=10,
     )
@@ -40,19 +40,17 @@ def cnn_model():
     # add cost function
     cost = tf.losses.softmax_cross_entropy(
         onehot_labels=y,
-        logits=output,
+        logits=logits,
     )
     # define the optimizer
-    global_step = tf.Variable(0, trainable=False)
-    lr = tf.train.exponential_decay(0.6, global_step, 10000, 0.96, staircase=True)
-    optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.0005)
     # define the train op
     train_op = optimizer.minimize(
         loss=cost,
         global_step=tf.train.get_global_step()
     )
     # calculate predictions
-    return [X, y, train_op, cost, output, prob]
+    return [X, y, train_op, cost, logits, prob]
 
 
 def dense_model():
@@ -117,7 +115,7 @@ def test():
 
 def train():
     mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-    step = 3000
+    step = 5000
     batch_size = 128
     eval_size = 100
 
@@ -134,7 +132,7 @@ def train():
                 onehot_preds = output.eval(feed_dict={X: mnist.validation.images})
                 acc = eval(onehot_preds, mnist.validation.labels)
                 print 'acc: ', acc
-                if acc > 0.985:
+                if acc > .988:
                     break
 
         # test acc
@@ -143,7 +141,7 @@ def train():
 
         # save model
         saver = tf.train.Saver()
-        saver.save(sess, "project/models/model/model.ckpt")
+        saver.save(sess, "model/model.ckpt")
 
 
 def predict(images):
@@ -153,7 +151,7 @@ def predict(images):
         X, y, train_op, cost, output, prob = cnn_model()
         # restore model
         saver = tf.train.Saver()
-        saver.restore(sess, "project/models/model/model.ckpt")
+        saver.restore(sess, "model/model.ckpt")
         onehot_preds = output.eval(feed_dict={X: images})
         print 'test acc: ', eval(onehot_preds, mnist.test.labels)
         preds = np.argmax(onehot_preds, axis=1)
