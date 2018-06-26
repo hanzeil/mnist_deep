@@ -11,17 +11,21 @@ def cnn_model():
     input = tf.reshape(X, [-1, 28, 28, 1])
 
     # convolutional layer 1
-    convo1 = tf.layers.conv2d(input, 32, 5, activation=tf.nn.relu)
+    convo1 = tf.layers.conv2d(input, 64, 5, activation=tf.nn.relu)
     # pooling layer 1
     pool1 = tf.layers.max_pooling2d(convo1, 2, 2)
     # convolutional layer 2
-    convo2 = tf.layers.conv2d(input, 64, 5, activation=tf.nn.relu)
+    convo2 = tf.layers.conv2d(convo1, 64, 5, activation=tf.nn.relu)
     # pooling layer 2
     pool2 = tf.layers.max_pooling2d(convo2, 2, 2)
+    # convolutional layer 3
+    convo3 = tf.layers.conv2d(convo1, 64, 5, activation=tf.nn.relu)
+    # pooling layer 3
+    pool3 = tf.layers.max_pooling2d(convo2, 2, 2)
 
     # reshape to 2-D
     # dense_input = tf.reshape(pool2, [-1, 7 * 7 * 64])
-    dense_input = tf.contrib.layers.flatten(pool2)
+    dense_input = tf.contrib.layers.flatten(pool3)
 
     # add a dense layer
     dense1 = tf.layers.dense(dense_input, 1024)
@@ -43,7 +47,7 @@ def cnn_model():
         logits=logits,
     )
     # define the optimizer
-    optimizer = tf.train.AdamOptimizer(learning_rate=0.0005)
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.0001)
     # define the train op
     train_op = optimizer.minimize(
         loss=cost,
@@ -88,8 +92,7 @@ def dense_model():
     )
     # define the optimizer
     global_step = tf.Variable(0, trainable=False)
-    lr = tf.train.exponential_decay(0.6, global_step, 10000, 0.96, staircase=True)
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.3)
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
     # define the train op
     train_op = optimizer.minimize(
         loss=cost,
@@ -115,7 +118,7 @@ def test():
 
 def train():
     mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-    step = 5000
+    step = 20000
     batch_size = 128
     eval_size = 100
 
@@ -132,8 +135,8 @@ def train():
                 onehot_preds = output.eval(feed_dict={X: mnist.validation.images})
                 acc = eval(onehot_preds, mnist.validation.labels)
                 print 'acc: ', acc
-                if acc > .988:
-                    break
+		if acc >= 0.995:
+		    break
 
         # test acc
         onehot_preds = output.eval(feed_dict={X: mnist.test.images})
